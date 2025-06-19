@@ -64,4 +64,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    //relacion con la tabla messages
+    public function messages(){
+        return $this->hasMany(Message::class);
+    }
 }
