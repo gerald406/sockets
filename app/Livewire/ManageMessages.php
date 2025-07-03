@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Events\MessageSend;
 use App\Models\Message;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ManageMessages extends Component
@@ -11,23 +13,27 @@ class ManageMessages extends Component
     public $messages;
 
     public function mount(){
-        $this->messages = Message::latest()->get();
+        $this->getMessages();
     }
 
     public function save(){
-        $this->validate([
-            'content' =>'required|string|min:3'
-        ]);
-
+        //revisar a validadcion
         Message::create([
             'content' => $this->content,
             'user_id' => auth()->id()
-        ]);
+        ]); 
 
         $this->content = '';
+        //emitir un evento de notificacion a otros usuarios
+        MessageSend::dispatch();
     }
-    public function render()
-    {
+
+    #[On('echo:chat,MessageSend')]
+    public function getMessages(){
+        $this->messages = Message::with('user')->latest()->get();
+    }
+
+    public function render()   {
         return view('livewire.manage-messages');
     }
 }
